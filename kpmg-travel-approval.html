@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KPMG International Travel Approval</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root {
+    --kpmg-navy: #00338D;
+    --kpmg-navy-dark: #001E5A;
+    --kpmg-blue: #0091DA;
+    --kpmg-light: #EAF3FB;
+    --kpmg-violet: #483698;
+    --kpmg-pink: #BC204B;
+    --ink: #1A1A1A;
+    --ink-soft: #4A4A4A;
+    --ink-muted: #8A8A8A;
+    --paper: #FAFAF7;
+    --paper-warm: #F5F2EB;
+    --line: #D9D9D2;
+    --line-strong: #B8B8B0;
+    --ok: #2D7D46;
+    --warn: #B8860B;
+    --err: #C0392B;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.5;
+    background-image:
+      radial-gradient(circle at 20% 10%, rgba(0,51,141,0.04) 0%, transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(0,145,218,0.03) 0%, transparent 40%);
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 32px 80px;
+  }
+
+  /* Header */
+  header {
+    border-top: 6px solid var(--kpmg-navy);
+    padding-top: 24px;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .brand {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+  .brand-mark {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 34px;
+    letter-spacing: -1px;
+    color: var(--kpmg-navy);
+    line-height: 1;
+  }
+  .brand-mark::after {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--kpmg-blue);
+    margin-left: 6px;
+    transform: translateY(-4px);
+  }
+  .brand-sub {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    color: var(--ink-muted);
+    font-weight: 500;
+  }
+  .doc-meta {
+    text-align: right;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-muted);
+    line-height: 1.6;
+  }
+  .doc-meta strong { color: var(--ink); font-weight: 500; }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 42px;
+    line-height: 1.05;
+    letter-spacing: -1.2px;
+    color: var(--ink);
+    margin-bottom: 8px;
+    max-width: 720px;
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--kpmg-navy);
+    font-weight: 400;
+  }
+  .lede {
+    font-size: 16px;
+    color: var(--ink-soft);
+    max-width: 680px;
+    margin-bottom: 32px;
+  }
+
+  /* Saved drafts strip */
+  .drafts-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--paper-warm);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    margin-bottom: 32px;
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+  .drafts-bar-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--ink-muted);
+    padding-right: 12px;
+    border-right: 1px solid var(--line-strong);
+  }
+  .draft-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.15s ease;
+  }
+  .draft-chip:hover {
+    border-color: var(--kpmg-navy);
+    color: var(--kpmg-navy);
+  }
+  .draft-chip .x {
+    color: var(--ink-muted);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0 2px;
+  }
+  .draft-chip .x:hover { color: var(--err); }
+  .draft-empty {
+    color: var(--ink-muted);
+    font-style: italic;
+    font-size: 12px;
+  }
+
+  /* Layout */
+  .layout {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 40px;
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  /* Form */
+  .form-section {
+    margin-bottom: 36px;
+  }
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--kpmg-navy);
+    font-weight: 500;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::before {
+    content: attr(data-num);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: var(--kpmg-navy);
+    color: white;
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 4px;
+    letter-spacing: -0.3px;
+  }
+  .section-hint {
+    font-size: 13px;
+    color: var(--ink-muted);
+    margin-bottom: 20px;
+    font-style: italic;
+  }
+
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .field-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .field-grid.full { grid-template-columns: 1fr; }
+  @media (max-width: 600px) {
+    .field-grid, .field-grid.three { grid-template-columns: 1fr; }
+  }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .field label .req { color: var(--err); margin-left: 2px; }
+  .field input, .field select, .field textarea {
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--line-strong);
+    background: white;
+    border-radius: 2px;
+    color: var(--ink);
+    transition: border 0.15s ease, box-shadow 0.15s ease;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none;
+    border-color: var(--kpmg-navy);
+    box-shadow: 0 0 0 3px rgba(0,51,141,0.1);
+  }
+  .field textarea { resize: vertical; min-height: 70px; font-family: 'IBM Plex Sans', sans-serif; }
+
+  .radio-group {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--line-strong);
+    border-radius: 2px;
+    overflow: hidden;
+    background: white;
+  }
+  .radio-group label {
+    flex: 1;
+    padding: 10px 14px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 13px;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 500;
+    color: var(--ink-soft);
+    background: white;
+    border-right: 1px solid var(--line);
+    transition: all 0.15s ease;
+  }
+  .radio-group label:last-child { border-right: none; }
+  .radio-group input { display: none; }
+  .radio-group input:checked + label,
+  .radio-group label.checked {
+    background: var(--kpmg-navy);
+    color: white;
+  }
+  .radio-group label:hover:not(.checked) { background: var(--kpmg-light); color: var(--kpmg-navy); }
+
+  .checkbox-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    background: var(--paper-warm);
+    border-radius: 2px;
+    font-size: 13px;
+    line-height: 1.5;
+    cursor: pointer;
+  }
+  .checkbox-row input { margin-top: 3px; flex-shrink: 0; }
+  .checkbox-row strong { color: var(--ink); }
+
+  /* Preview pane */
+  .preview-pane {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+  }
+  .preview-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--line-strong);
+    margin-bottom: 0;
+  }
+  .preview-tab {
+    padding: 12px 18px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+    color: var(--ink-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .preview-tab.active {
+    color: var(--kpmg-navy);
+    border-bottom-color: var(--kpmg-navy);
+  }
+  .preview-box {
+    background: white;
+    border: 1px solid var(--line);
+    border-top: none;
+    padding: 28px;
+    min-height: 480px;
+    font-size: 13px;
+    line-height: 1.65;
+    color: var(--ink);
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .preview-box::-webkit-scrollbar { width: 8px; }
+  .preview-box::-webkit-scrollbar-track { background: var(--paper-warm); }
+  .preview-box::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 4px; }
+
+  .email-header {
+    border-bottom: 1px dashed var(--line);
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+  }
+  .email-header .row { display: flex; gap: 8px; margin-bottom: 3px; }
+  .email-header .label-k {
+    color: var(--ink-muted);
+    min-width: 50px;
+    text-transform: uppercase;
+  }
+  .email-header .val { color: var(--ink); }
+  .email-subject {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .email-body { white-space: pre-wrap; font-family: 'IBM Plex Sans', sans-serif; }
+
+  .pdf-preview {
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .pdf-preview h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    color: var(--kpmg-navy);
+    margin: 18px 0 8px;
+    font-weight: 500;
+  }
+  .pdf-preview h3:first-child { margin-top: 0; }
+  .pdf-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px dotted var(--line);
+    font-size: 12px;
+  }
+  .pdf-row .k {
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 1px;
+    font-weight: 600;
+    padding-top: 2px;
+  }
+  .pdf-row .v { color: var(--ink); }
+  .pdf-row .v.missing { color: var(--ink-muted); font-style: italic; }
+
+  /* Action bar */
+  .action-bar {
+    margin-top: 16px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 11px 18px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    border: 1px solid var(--kpmg-navy);
+    background: var(--kpmg-navy);
+    color: white;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn:hover { background: var(--kpmg-navy-dark); }
+  .btn.secondary {
+    background: white;
+    color: var(--kpmg-navy);
+  }
+  .btn.secondary:hover { background: var(--kpmg-light); }
+  .btn.ghost {
+    background: none;
+    border-color: var(--line-strong);
+    color: var(--ink-soft);
+  }
+  .btn.ghost:hover { border-color: var(--ink-soft); color: var(--ink); }
+
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    background: var(--ink);
+    color: white;
+    padding: 14px 20px;
+    font-size: 13px;
+    border-radius: 2px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.success { background: var(--ok); }
+
+  /* Footer */
+  footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    font-size: 11px;
+    color: var(--ink-muted);
+    line-height: 1.7;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  footer strong { color: var(--ink-soft); font-weight: 500; }
+
+  .info-callout {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--kpmg-light);
+    border-left: 3px solid var(--kpmg-blue);
+    margin-bottom: 24px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.55;
+  }
+  .info-callout strong { color: var(--kpmg-navy); }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="brand-mark">KPMG</div>
+        <div class="brand-sub">International Travel<br>Pre-Approval Tool</div>
+      </div>
+      <div class="doc-meta">
+        <div><strong>FORM</strong> · TRV-INTL-APPROVAL</div>
+        <div><strong>POLICY</strong> · NMP / Slide 2</div>
+        <div id="todayDate"></div>
+      </div>
+    </header>
+
+    <h1>Before you book a single flight, <em>get it on paper.</em></h1>
+    <p class="lede">This tool collates everything your Divisional NMP needs to grant written pre-approval for international travel, then drafts the email and a PDF summary for your records — aligned to the KPMG travel approval workflow.</p>
+
+    <div class="drafts-bar">
+      <span class="drafts-bar-label">Saved drafts</span>
+      <div id="draftsList" style="display: flex; gap: 8px; flex-wrap: wrap; flex: 1;">
+        <span class="draft-empty">None saved yet — fill in the form and click Save draft.</span>
+      </div>
+    </div>
+
+    <div class="layout">
+      <!-- LEFT: FORM -->
+      <div>
+        <div class="info-callout">
+          <div>
+            <strong>Reminder:</strong> Per KPMG NMP, written pre-approval must be retained in case of random travel audit. Global &amp; ASPAC travel requires cost-centre-owner pre-approval. Check with KPMG ISO if taking KPMG devices/apps.
+          </div>
+        </div>
+
+        <!-- Traveller -->
+        <div class="form-section">
+          <div class="section-label" data-num="1">Traveller</div>
+          <div class="section-title">Who's going</div>
+          <div class="section-hint">Identify the traveller and their KPMG context.</div>
+          <div class="field-grid">
+            <div class="field">
+              <label>Full name <span class="req">*</span></label>
+              <input type="text" id="travName" placeholder="e.g. Brad Smith">
+            </div>
+            <div class="field">
+              <label>KPMG email <span class="req">*</span></label>
+              <input type="email" id="travEmail" placeholder="bsmith@kpmg.com.au">
+            </div>
+            <div class="field">
+              <label>Role / Title</label>
+              <input type="text" id="travRole" placeholder="Partner, Energy &amp; Natural Resources">
+            </div>
+            <div class="field">
+              <label>Division <span class="req">*</span></label>
+              <input type="text" id="travDivision" placeholder="e.g. Advisory · ENR">
+            </div>
+          </div>
+        </div>
+
+        <!-- Reason -->
+        <div class="form-section">
+          <div class="section-label" data-num="2">Purpose</div>
+          <div class="section-title">Why this trip</div>
+          <div class="section-hint">Clear business justification — what's the outcome the firm gets?</div>
+          <div class="field-grid full">
+            <div class="field">
+              <label>Reason for travel <span class="req">*</span></label>
+              <textarea id="reason" placeholder="e.g. On-site engagement workshop with BHP Minerals Australia leadership re: AI adoption roadmap. In-person required for executive alignment session."></textarea>
+            </div>
+            <div class="field">
+              <label>Business outcome / deliverable</label>
+              <input type="text" id="outcome" placeholder="e.g. Signed-off Q3 engagement plan">
+            </div>
+          </div>
+        </div>
+
+        <!-- Trip details -->
+        <div class="form-section">
+          <div class="section-label" data-num="3">Itinerary</div>
+          <div class="section-title">Trip details</div>
+          <div class="section-hint">Cheapest available fares, lowest preferred-accommodation rate, lowest preferred-supplier car rate.</div>
+          <div class="field-grid">
+            <div class="field">
+              <label>Origin <span class="req">*</span></label>
+              <input type="text" id="origin" placeholder="Perth, WA">
+            </div>
+            <div class="field">
+              <label>Destination(s) <span class="req">*</span></label>
+              <input type="text" id="destination" placeholder="Santiago, Chile">
+            </div>
+            <div class="field">
+              <label>Depart <span class="req">*</span></label>
+              <input type="date" id="dateOut">
+            </div>
+            <div class="field">
+              <label>Return <span class="req">*</span></label>
+              <input type="date" id="dateBack">
+            </div>
+          </div>
+          <div class="field-grid three" style="margin-top: 16px;">
+            <div class="field">
+              <label>Est. flight cost (AUD)</label>
+              <input type="number" id="costFlight" placeholder="3450">
+            </div>
+            <div class="field">
+              <label>Est. accommodation (AUD)</label>
+              <input type="number" id="costHotel" placeholder="1800">
+            </div>
+            <div class="field">
+              <label>Est. car / other (AUD)</label>
+              <input type="number" id="costOther" placeholder="600">
+            </div>
+          </div>
+          <div class="field-grid full" style="margin-top: 16px;">
+            <div class="field">
+              <label>Quote source (Travel Management Company)</label>
+              <input type="text" id="quoteSource" placeholder="AmexGBT quote ref / Zeno reference">
+            </div>
+          </div>
+        </div>
+
+        <!-- Charge -->
+        <div class="form-section">
+          <div class="section-label" data-num="4">Charge</div>
+          <div class="section-title">How it's charged</div>
+          <div class="section-hint">Pick one. This determines who approves and how the booking is finalised in Zeno.</div>
+          <div class="radio-group" id="chargeType" style="margin-bottom: 14px;">
+            <input type="radio" name="charge" id="chargeJob" value="job" checked>
+            <label for="chargeJob" class="checked">Charged to job</label>
+            <input type="radio" name="charge" id="chargeCC" value="cc">
+            <label for="chargeCC">Charged to cost centre</label>
+          </div>
+          <div class="field-grid" id="jobFields">
+            <div class="field">
+              <label>Job code <span class="req">*</span></label>
+              <input type="text" id="jobCode" placeholder="e.g. AU-12345">
+            </div>
+            <div class="field">
+              <label>Job partner <span class="req">*</span></label>
+              <input type="text" id="jobPartner" placeholder="Name of engagement partner">
+            </div>
+            <div class="field">
+              <label>Job partner email <span class="req">*</span></label>
+              <input type="email" id="jobPartnerEmail" placeholder="jpartner@kpmg.com.au">
+            </div>
+            <div class="field">
+              <label>Client / Engagement name</label>
+              <input type="text" id="clientName" placeholder="e.g. BHP — Minerals Australia">
+            </div>
+          </div>
+          <div class="field-grid" id="ccFields" style="display:none;">
+            <div class="field">
+              <label>Cost centre code <span class="req">*</span></label>
+              <input type="text" id="ccCode" placeholder="e.g. CC-887700">
+            </div>
+            <div class="field">
+              <label>Cost centre owner <span class="req">*</span></label>
+              <input type="text" id="ccOwner" placeholder="Name of cost centre owner">
+            </div>
+            <div class="field">
+              <label>Cost centre owner email <span class="req">*</span></label>
+              <input type="email" id="ccOwnerEmail" placeholder="ccowner@kpmg.com.au">
+            </div>
+            <div class="field">
+              <label>Cost centre description</label>
+              <input type="text" id="ccDesc" placeholder="e.g. ENR Practice Development">
+            </div>
+          </div>
+        </div>
+
+        <!-- NMP & approvers -->
+        <div class="form-section">
+          <div class="section-label" data-num="5">Approvers</div>
+          <div class="section-title">Divisional NMP &amp; recipients</div>
+          <div class="section-hint">The NMP grants the binding pre-approval. Add anyone else to CC.</div>
+          <div class="field-grid">
+            <div class="field">
+              <label>Divisional NMP name <span class="req">*</span></label>
+              <input type="text" id="nmpName" placeholder="Name of approving NMP">
+            </div>
+            <div class="field">
+              <label>Divisional NMP email <span class="req">*</span></label>
+              <input type="email" id="nmpEmail" placeholder="nmp@kpmg.com.au">
+            </div>
+            <div class="field">
+              <label>CC (comma-separated)</label>
+              <input type="text" id="ccEmails" placeholder="ea@kpmg.com.au, finance@kpmg.com.au">
+            </div>
+            <div class="field">
+              <label>Travel risk / destination notes</label>
+              <input type="text" id="riskNote" placeholder="e.g. DFAT exercise normal caution">
+            </div>
+          </div>
+        </div>
+
+        <!-- Compliance -->
+        <div class="form-section">
+          <div class="section-label" data-num="6">Compliance</div>
+          <div class="section-title">Confirmations</div>
+          <label class="checkbox-row" style="margin-bottom: 8px;">
+            <input type="checkbox" id="confISO">
+            <span><strong>KPMG ISO checked</strong> regarding security compliance for taking KPMG devices and using KPMG apps during the trip.</span>
+          </label>
+          <label class="checkbox-row" style="margin-bottom: 8px;">
+            <input type="checkbox" id="confQuotes">
+            <span><strong>Quotes obtained</strong> from firm's Travel Management Company (AmexGBT / Zeno).</span>
+          </label>
+          <label class="checkbox-row" style="margin-bottom: 8px;">
+            <input type="checkbox" id="confLowest">
+            <span><strong>Lowest available fares/rates</strong> selected across KPMG-preferred flight, accommodation, and car rental suppliers.</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="confGlobal">
+            <span><strong>Cost-centre-owner pre-approval</strong> obtained where required (Global &amp; ASPAC travel — Note 3).</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- RIGHT: PREVIEW -->
+      <div class="preview-pane">
+        <div class="preview-tabs">
+          <button class="preview-tab active" data-tab="email">Approval email</button>
+          <button class="preview-tab" data-tab="pdf">PDF summary</button>
+        </div>
+        <div class="preview-box" id="previewEmail">
+          <div class="email-header">
+            <div class="row"><span class="label-k">To</span><span class="val" id="pTo">—</span></div>
+            <div class="row"><span class="label-k">Cc</span><span class="val" id="pCc">—</span></div>
+            <div class="row"><span class="label-k">From</span><span class="val" id="pFrom">—</span></div>
+            <div class="row"><span class="label-k">Subject</span><span class="val email-subject" id="pSubject">—</span></div>
+          </div>
+          <div class="email-body" id="pBody">Fill in the form on the left and the approval email will draft itself here.</div>
+        </div>
+        <div class="preview-box pdf-preview" id="previewPdf" style="display:none;"></div>
+
+        <div class="action-bar">
+          <button class="btn" id="btnEmail">Open in mail client</button>
+          <button class="btn secondary" id="btnCopy">Copy email</button>
+          <button class="btn secondary" id="btnPdf">Download PDF</button>
+          <button class="btn ghost" id="btnSave">Save draft</button>
+          <button class="btn ghost" id="btnClear">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div><strong>NOTE 1.</strong> Ticketed booking CHANGES incurring higher costs require re-approval from the NMP.</div>
+      <div><strong>NOTE 2.</strong> Costs for additional baggage above or seating outside of standard airline allowances will be personal cost to the traveller.</div>
+      <div><strong>NOTE 3.</strong> Global and ASPAC travel must have gained KPMG Australia cost centre owner written pre-approval.</div>
+      <div style="margin-top: 12px; opacity: 0.7;">Travel cannot proceed without written pre-approval. This tool produces a draft only — final approval must come from the Divisional NMP in writing.</div>
+    </footer>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+  // ===== Setup =====
+  const today = new Date();
+  document.getElementById('todayDate').innerHTML = `<strong>DATE</strong> · ${today.toLocaleDateString('en-AU', {day:'2-digit', month:'short', year:'numeric'}).toUpperCase()}`;
+
+  const STORAGE_KEY = 'kpmgTravelDrafts_v1';
+  const FIELDS = ['travName','travEmail','travRole','travDivision','reason','outcome','origin','destination','dateOut','dateBack','costFlight','costHotel','costOther','quoteSource','jobCode','jobPartner','jobPartnerEmail','clientName','ccCode','ccOwner','ccOwnerEmail','ccDesc','nmpName','nmpEmail','ccEmails','riskNote'];
+  const CHECKS = ['confISO','confQuotes','confLowest','confGlobal'];
+
+  // ===== Charge type radio styling =====
+  document.querySelectorAll('input[name="charge"]').forEach(r => {
+    r.addEventListener('change', () => {
+      document.querySelectorAll('.radio-group label').forEach(l => l.classList.remove('checked'));
+      document.querySelector(`label[for="${r.id}"]`).classList.add('checked');
+      document.getElementById('jobFields').style.display = r.value === 'job' ? 'grid' : 'none';
+      document.getElementById('ccFields').style.display = r.value === 'cc' ? 'grid' : 'none';
+      updatePreview();
+    });
+  });
+
+  // ===== Tab switching =====
+  document.querySelectorAll('.preview-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.preview-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.dataset.tab;
+      document.getElementById('previewEmail').style.display = tab === 'email' ? 'block' : 'none';
+      document.getElementById('previewPdf').style.display = tab === 'pdf' ? 'block' : 'none';
+    });
+  });
+
+  // ===== Data gathering =====
+  function getData() {
+    const d = {};
+    FIELDS.forEach(f => d[f] = document.getElementById(f).value.trim());
+    CHECKS.forEach(c => d[c] = document.getElementById(c).checked);
+    d.chargeType = document.querySelector('input[name="charge"]:checked').value;
+    return d;
+  }
+
+  function setData(d) {
+    FIELDS.forEach(f => { if (d[f] !== undefined) document.getElementById(f).value = d[f]; });
+    CHECKS.forEach(c => { if (d[c] !== undefined) document.getElementById(c).checked = d[c]; });
+    if (d.chargeType) {
+      document.getElementById(d.chargeType === 'job' ? 'chargeJob' : 'chargeCC').checked = true;
+      document.querySelectorAll('.radio-group label').forEach(l => l.classList.remove('checked'));
+      document.querySelector(`label[for="${d.chargeType === 'job' ? 'chargeJob' : 'chargeCC'}"]`).classList.add('checked');
+      document.getElementById('jobFields').style.display = d.chargeType === 'job' ? 'grid' : 'none';
+      document.getElementById('ccFields').style.display = d.chargeType === 'cc' ? 'grid' : 'none';
+    }
+    updatePreview();
+  }
+
+  // ===== Email builder =====
+  function fmtDate(s) {
+    if (!s) return '';
+    try {
+      return new Date(s).toLocaleDateString('en-AU', {weekday: 'short', day: '2-digit', month: 'short', year: 'numeric'});
+    } catch { return s; }
+  }
+
+  function fmtMoney(n) {
+    if (!n) return '';
+    return 'A$' + Number(n).toLocaleString('en-AU', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+  }
+
+  function buildEmail(d) {
+    const total = (Number(d.costFlight)||0) + (Number(d.costHotel)||0) + (Number(d.costOther)||0);
+    const dest = d.destination || '[destination]';
+    const dateRange = (d.dateOut || d.dateBack) ? `${fmtDate(d.dateOut)} → ${fmtDate(d.dateBack)}` : '[dates]';
+
+    const subject = `Pre-approval request: International travel — ${d.travName || '[traveller]'} → ${dest} (${d.dateOut ? new Date(d.dateOut).toLocaleDateString('en-AU', {day:'2-digit', month:'short'}) : '[date]'})`;
+
+    let chargeBlock = '';
+    if (d.chargeType === 'job') {
+      chargeBlock = `CHARGE\n• Charged to job: ${d.jobCode || '[job code]'}${d.clientName ? ' — ' + d.clientName : ''}\n• Job partner: ${d.jobPartner || '[partner]'}${d.jobPartnerEmail ? ' (' + d.jobPartnerEmail + ')' : ''}`;
+    } else {
+      chargeBlock = `CHARGE\n• Charged to cost centre: ${d.ccCode || '[CC code]'}${d.ccDesc ? ' — ' + d.ccDesc : ''}\n• Cost centre owner: ${d.ccOwner || '[owner]'}${d.ccOwnerEmail ? ' (' + d.ccOwnerEmail + ')' : ''}`;
+    }
+
+    const costsBlock = (d.costFlight || d.costHotel || d.costOther) ?
+`\nESTIMATED COST (AUD)
+• Flights: ${fmtMoney(d.costFlight) || '—'}
+• Accommodation: ${fmtMoney(d.costHotel) || '—'}
+• Car / other: ${fmtMoney(d.costOther) || '—'}
+• Total: ${fmtMoney(total)}${d.quoteSource ? '\n• Quote source: ' + d.quoteSource : ''}` : '';
+
+    const checks = [];
+    if (d.confQuotes) checks.push('Quotes obtained via firm TMC (AmexGBT/Zeno)');
+    if (d.confLowest) checks.push('Lowest available preferred-supplier fares/rates selected');
+    if (d.confISO) checks.push('KPMG ISO consulted re: device/app security for the destination');
+    if (d.confGlobal) checks.push('Cost centre owner pre-approval obtained (per Note 3)');
+
+    const checksBlock = checks.length ?
+`\nCOMPLIANCE CONFIRMATIONS
+${checks.map(c => '• ' + c).join('\n')}` : '';
+
+    const body =
+`Dear ${d.nmpName || '[NMP name]'},
+
+I am writing to request your written pre-approval for international travel, in accordance with the KPMG NMP travel policy.
+
+TRAVELLER
+• ${d.travName || '[name]'}${d.travRole ? ', ' + d.travRole : ''}
+• Division: ${d.travDivision || '[division]'}
+• Email: ${d.travEmail || '[email]'}
+
+TRIP
+• Route: ${d.origin || '[origin]'} → ${dest}
+• Dates: ${dateRange}
+• Purpose: ${d.reason || '[business reason]'}${d.outcome ? '\n• Outcome / deliverable: ' + d.outcome : ''}${d.riskNote ? '\n• Risk note: ' + d.riskNote : ''}
+
+${chargeBlock}
+${costsBlock}
+${checksBlock}
+
+I confirm that no flights, accommodation, or car hire will be ticketed in Zeno until your written pre-approval is received. I will retain that approval in line with the random travel audit requirement.
+
+Could you please reply to confirm pre-approval, or let me know if you need anything further before doing so.
+
+Kind regards,
+${d.travName || '[your name]'}
+${d.travRole || ''}${d.travRole && d.travDivision ? ' · ' : ''}${d.travDivision || ''}
+KPMG Australia`;
+
+    return { subject, body, total };
+  }
+
+  // ===== Preview update =====
+  function updatePreview() {
+    const d = getData();
+    const { subject, body, total } = buildEmail(d);
+
+    document.getElementById('pTo').textContent = d.nmpEmail || '—';
+    document.getElementById('pCc').textContent = d.ccEmails || '—';
+    document.getElementById('pFrom').textContent = d.travEmail || '—';
+    document.getElementById('pSubject').textContent = subject;
+    document.getElementById('pBody').textContent = body;
+
+    // PDF preview
+    const pdfHtml = `
+      <h3>International Travel Pre-Approval Request</h3>
+      <div class="pdf-row"><div class="k">Generated</div><div class="v">${today.toLocaleDateString('en-AU', {day:'2-digit', month:'long', year:'numeric'})}</div></div>
+
+      <h3>Traveller</h3>
+      <div class="pdf-row"><div class="k">Name</div><div class="v ${!d.travName ? 'missing' : ''}">${d.travName || 'Not provided'}</div></div>
+      <div class="pdf-row"><div class="k">Role</div><div class="v ${!d.travRole ? 'missing' : ''}">${d.travRole || 'Not provided'}</div></div>
+      <div class="pdf-row"><div class="k">Division</div><div class="v ${!d.travDivision ? 'missing' : ''}">${d.travDivision || 'Not provided'}</div></div>
+      <div class="pdf-row"><div class="k">Email</div><div class="v ${!d.travEmail ? 'missing' : ''}">${d.travEmail || 'Not provided'}</div></div>
+
+      <h3>Trip</h3>
+      <div class="pdf-row"><div class="k">Route</div><div class="v ${!d.origin && !d.destination ? 'missing' : ''}">${(d.origin || '—') + ' → ' + (d.destination || '—')}</div></div>
+      <div class="pdf-row"><div class="k">Depart</div><div class="v ${!d.dateOut ? 'missing' : ''}">${fmtDate(d.dateOut) || 'Not provided'}</div></div>
+      <div class="pdf-row"><div class="k">Return</div><div class="v ${!d.dateBack ? 'missing' : ''}">${fmtDate(d.dateBack) || 'Not provided'}</div></div>
+      <div class="pdf-row"><div class="k">Reason</div><div class="v ${!d.reason ? 'missing' : ''}">${d.reason || 'Not provided'}</div></div>
+      ${d.outcome ? `<div class="pdf-row"><div class="k">Outcome</div><div class="v">${d.outcome}</div></div>` : ''}
+      ${d.riskNote ? `<div class="pdf-row"><div class="k">Risk note</div><div class="v">${d.riskNote}</div></div>` : ''}
+
+      <h3>Cost estimate (AUD)</h3>
+      <div class="pdf-row"><div class="k">Flights</div><div class="v">${fmtMoney(d.costFlight) || '—'}</div></div>
+      <div class="pdf-row"><div class="k">Accommodation</div><div class="v">${fmtMoney(d.costHotel) || '—'}</div></div>
+      <div class="pdf-row"><div class="k">Car / Other</div><div class="v">${fmtMoney(d.costOther) || '—'}</div></div>
+      <div class="pdf-row"><div class="k">Total</div><div class="v"><strong>${fmtMoney(total) || '—'}</strong></div></div>
+      ${d.quoteSource ? `<div class="pdf-row"><div class="k">Quote ref</div><div class="v">${d.quoteSource}</div></div>` : ''}
+
+      <h3>Charge</h3>
+      ${d.chargeType === 'job' ? `
+        <div class="pdf-row"><div class="k">Type</div><div class="v">Charged to job</div></div>
+        <div class="pdf-row"><div class="k">Job code</div><div class="v ${!d.jobCode ? 'missing' : ''}">${d.jobCode || 'Not provided'}</div></div>
+        <div class="pdf-row"><div class="k">Client</div><div class="v ${!d.clientName ? 'missing' : ''}">${d.clientName || 'Not provided'}</div></div>
+        <div class="pdf-row"><div class="k">Job partner</div><div class="v ${!d.jobPartner ? 'missing' : ''}">${d.jobPartner || 'Not provided'}${d.jobPartnerEmail ? ' · ' + d.jobPartnerEmail : ''}</div></div>
+      ` : `
+        <div class="pdf-row"><div class="k">Type</div><div class="v">Charged to cost centre</div></div>
+        <div class="pdf-row"><div class="k">CC code</div><div class="v ${!d.ccCode ? 'missing' : ''}">${d.ccCode || 'Not provided'}</div></div>
+        <div class="pdf-row"><div class="k">CC description</div><div class="v ${!d.ccDesc ? 'missing' : ''}">${d.ccDesc || 'Not provided'}</div></div>
+        <div class="pdf-row"><div class="k">CC owner</div><div class="v ${!d.ccOwner ? 'missing' : ''}">${d.ccOwner || 'Not provided'}${d.ccOwnerEmail ? ' · ' + d.ccOwnerEmail : ''}</div></div>
+      `}
+
+      <h3>Approver</h3>
+      <div class="pdf-row"><div class="k">Divisional NMP</div><div class="v ${!d.nmpName ? 'missing' : ''}">${d.nmpName || 'Not provided'}${d.nmpEmail ? ' · ' + d.nmpEmail : ''}</div></div>
+
+      <h3>Compliance confirmations</h3>
+      <div class="pdf-row"><div class="k">TMC quotes</div><div class="v">${d.confQuotes ? '✓ Confirmed' : '✗ Not confirmed'}</div></div>
+      <div class="pdf-row"><div class="k">Lowest fares</div><div class="v">${d.confLowest ? '✓ Confirmed' : '✗ Not confirmed'}</div></div>
+      <div class="pdf-row"><div class="k">ISO check</div><div class="v">${d.confISO ? '✓ Confirmed' : '✗ Not confirmed'}</div></div>
+      <div class="pdf-row"><div class="k">CC owner pre-approval</div><div class="v">${d.confGlobal ? '✓ Confirmed' : '✗ Not confirmed'}</div></div>
+    `;
+    document.getElementById('previewPdf').innerHTML = pdfHtml;
+  }
+
+  // ===== Drafts =====
+  function loadDrafts() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch { return []; }
+  }
+  function saveDrafts(drafts) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(drafts));
+  }
+  function renderDrafts() {
+    const drafts = loadDrafts();
+    const list = document.getElementById('draftsList');
+    if (!drafts.length) {
+      list.innerHTML = '<span class="draft-empty">None saved yet — fill in the form and click Save draft.</span>';
+      return;
+    }
+    list.innerHTML = drafts.map((dr, i) => {
+      const label = dr.travName ? `${dr.travName.split(' ')[0]} → ${dr.destination || '?'}` : `Draft ${i+1}`;
+      return `<span class="draft-chip" data-i="${i}">
+        <span class="load">${label}</span>
+        <span class="x" data-del="${i}" title="Delete">×</span>
+      </span>`;
+    }).join('');
+    list.querySelectorAll('.draft-chip').forEach(chip => {
+      chip.querySelector('.load').addEventListener('click', () => {
+        const i = +chip.dataset.i;
+        const drafts = loadDrafts();
+        if (drafts[i]) { setData(drafts[i]); toast('Draft loaded'); }
+      });
+      chip.querySelector('.x').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const i = +chip.querySelector('.x').dataset.del;
+        const drafts = loadDrafts();
+        drafts.splice(i, 1);
+        saveDrafts(drafts);
+        renderDrafts();
+        toast('Draft removed');
+      });
+    });
+  }
+
+  // ===== Buttons =====
+  document.getElementById('btnSave').addEventListener('click', () => {
+    const d = getData();
+    if (!d.travName && !d.destination) {
+      toast('Add at least a name or destination first', false);
+      return;
+    }
+    const drafts = loadDrafts();
+    drafts.unshift({ ...d, savedAt: Date.now() });
+    if (drafts.length > 8) drafts.length = 8;
+    saveDrafts(drafts);
+    renderDrafts();
+    toast('Draft saved', true);
+  });
+
+  document.getElementById('btnClear').addEventListener('click', () => {
+    if (!confirm('Clear all form fields?')) return;
+    FIELDS.forEach(f => document.getElementById(f).value = '');
+    CHECKS.forEach(c => document.getElementById(c).checked = false);
+    document.getElementById('chargeJob').checked = true;
+    document.querySelectorAll('.radio-group label').forEach(l => l.classList.remove('checked'));
+    document.querySelector('label[for="chargeJob"]').classList.add('checked');
+    document.getElementById('jobFields').style.display = 'grid';
+    document.getElementById('ccFields').style.display = 'none';
+    updatePreview();
+    toast('Form cleared');
+  });
+
+  document.getElementById('btnEmail').addEventListener('click', () => {
+    const d = getData();
+    const { subject, body } = buildEmail(d);
+    const to = encodeURIComponent(d.nmpEmail || '');
+    const cc = d.ccEmails ? '&cc=' + encodeURIComponent(d.ccEmails) : '';
+    window.location.href = `mailto:${to}?subject=${encodeURIComponent(subject)}${cc}&body=${encodeURIComponent(body)}`;
+  });
+
+  document.getElementById('btnCopy').addEventListener('click', () => {
+    const d = getData();
+    const { subject, body } = buildEmail(d);
+    const text = `To: ${d.nmpEmail || ''}\nCc: ${d.ccEmails || ''}\nSubject: ${subject}\n\n${body}`;
+    navigator.clipboard.writeText(text).then(() => toast('Email copied to clipboard', true));
+  });
+
+  document.getElementById('btnPdf').addEventListener('click', () => {
+    const d = getData();
+    const { subject, body, total } = buildEmail(d);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const W = doc.internal.pageSize.getWidth();
+    const H = doc.internal.pageSize.getHeight();
+    const M = 50;
+    let y = M;
+
+    // Header bar
+    doc.setFillColor(0, 51, 141);
+    doc.rect(0, 0, W, 8, 'F');
+
+    // Brand
+    y = 50;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.setTextColor(0, 51, 141);
+    doc.text('KPMG', M, y);
+    doc.setFillColor(0, 145, 218);
+    doc.rect(M + 58, y - 6, 6, 6, 'F');
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(120, 120, 120);
+    doc.text('INTERNATIONAL TRAVEL · PRE-APPROVAL REQUEST', M + 75, y - 2);
+    doc.text(`Generated ${today.toLocaleDateString('en-AU', {day:'2-digit', month:'short', year:'numeric'})}`, W - M, y - 2, {align: 'right'});
+
+    y += 25;
+    doc.setDrawColor(220, 220, 215);
+    doc.line(M, y, W - M, y);
+    y += 25;
+
+    // Title
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.setTextColor(26, 26, 26);
+    doc.text('International Travel Pre-Approval Request', M, y);
+    y += 22;
+
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    const subjLines = doc.splitTextToSize(subject, W - 2*M);
+    doc.text(subjLines, M, y);
+    y += subjLines.length * 13 + 12;
+
+    // Section helper
+    function section(title) {
+      if (y > H - 100) { doc.addPage(); y = M; }
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(0, 51, 141);
+      doc.text(title.toUpperCase(), M, y);
+      doc.setDrawColor(0, 51, 141);
+      doc.line(M, y + 3, W - M, y + 3);
+      y += 18;
+    }
+    function row(k, v) {
+      if (y > H - 80) { doc.addPage(); y = M; }
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(120, 120, 120);
+      doc.text(k.toUpperCase(), M, y);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.setTextColor(v ? 26 : 160, v ? 26 : 160, v ? 26 : 160);
+      const lines = doc.splitTextToSize(String(v || 'Not provided'), W - M - 160);
+      doc.text(lines, M + 130, y);
+      y += Math.max(14, lines.length * 12) + 4;
+    }
+
+    section('Traveller');
+    row('Name', d.travName);
+    row('Role', d.travRole);
+    row('Division', d.travDivision);
+    row('Email', d.travEmail);
+
+    y += 6;
+    section('Trip');
+    row('Route', (d.origin || '—') + '  →  ' + (d.destination || '—'));
+    row('Depart', fmtDate(d.dateOut));
+    row('Return', fmtDate(d.dateBack));
+    row('Reason', d.reason);
+    if (d.outcome) row('Outcome', d.outcome);
+    if (d.riskNote) row('Risk note', d.riskNote);
+
+    y += 6;
+    section('Cost estimate (AUD)');
+    row('Flights', fmtMoney(d.costFlight));
+    row('Accommodation', fmtMoney(d.costHotel));
+    row('Car / Other', fmtMoney(d.costOther));
+    row('Total', fmtMoney(total));
+    if (d.quoteSource) row('Quote ref', d.quoteSource);
+
+    y += 6;
+    section('Charge');
+    if (d.chargeType === 'job') {
+      row('Type', 'Charged to job');
+      row('Job code', d.jobCode);
+      row('Client', d.clientName);
+      row('Job partner', (d.jobPartner || '') + (d.jobPartnerEmail ? ' · ' + d.jobPartnerEmail : ''));
+    } else {
+      row('Type', 'Charged to cost centre');
+      row('CC code', d.ccCode);
+      row('CC description', d.ccDesc);
+      row('CC owner', (d.ccOwner || '') + (d.ccOwnerEmail ? ' · ' + d.ccOwnerEmail : ''));
+    }
+
+    y += 6;
+    section('Approver');
+    row('Divisional NMP', (d.nmpName || '') + (d.nmpEmail ? ' · ' + d.nmpEmail : ''));
+    if (d.ccEmails) row('CC on email', d.ccEmails);
+
+    y += 6;
+    section('Compliance confirmations');
+    row('TMC quotes obtained', d.confQuotes ? 'Confirmed' : 'Not confirmed');
+    row('Lowest preferred-supplier rates', d.confLowest ? 'Confirmed' : 'Not confirmed');
+    row('KPMG ISO consulted', d.confISO ? 'Confirmed' : 'Not confirmed');
+    row('CC owner pre-approval (Note 3)', d.confGlobal ? 'Confirmed' : 'Not confirmed');
+
+    // Footer on every page
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(150, 150, 150);
+      doc.text('TRAVEL CANNOT PROCEED WITHOUT WRITTEN PRE-APPROVAL · Retain for random travel audit', M, H - 24);
+      doc.text(`Page ${i} of ${pageCount}`, W - M, H - 24, {align: 'right'});
+    }
+
+    const fname = `KPMG_TravelApproval_${(d.travName || 'traveller').replace(/\s+/g,'_')}_${d.destination ? d.destination.replace(/[^a-z0-9]/gi,'') : 'trip'}.pdf`;
+    doc.save(fname);
+    toast('PDF downloaded', true);
+  });
+
+  // ===== Toast =====
+  function toast(msg, success) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (success ? ' success' : '');
+    setTimeout(() => t.className = 'toast', 2400);
+  }
+
+  // ===== Live preview =====
+  FIELDS.forEach(f => document.getElementById(f).addEventListener('input', updatePreview));
+  CHECKS.forEach(c => document.getElementById(c).addEventListener('change', updatePreview));
+
+  // ===== Init =====
+  renderDrafts();
+  updatePreview();
+</script>
+</body>
+</html>
